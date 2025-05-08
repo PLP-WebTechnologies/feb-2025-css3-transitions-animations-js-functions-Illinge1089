@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interactive Animations</title>
+  <style>
+    /* CSS Animation */
+    @keyframes bounce {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-20px);
+      }
+    }
+
+    /* Animated box styles */
+    .animated-box {
+      width: 100px;
+      height: 100px;
+      background-color: #3498db;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+      animation: none; /* Initially no animation */
+      margin: 30px auto;
+      cursor: pointer;
+    }
+
+    /* Animation class */
+    .bounce-animation {
+      animation: bounce 0.5s ease infinite;
+    }
+
+    /* Hover effect */
+    .animated-box:hover {
+      background-color: #2980b9;
+      transform: scale(1.05);
+    }
+
+    /* Page styles */
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 20px;
+      text-align: center;
+    }
+
+    .controls {
+      margin-top: 30px;
+      padding: 20px;
+      background-color: #f5f5f5;
+      border-radius: 10px;
+    }
+
+    .preference-control {
+      margin: 15px 0;
+    }
+
+    button {
+      padding: 10px 15px;
+      margin: 5px;
+      background-color: #2ecc71;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #27ae60;
+    }
+  </style>
+</head>
+<body>
+  <h1>Interactive Animation Demo</h1>
+  
+  <div class="animated-box" id="animationBox"></div>
+  
+  <div class="controls">
+    <button id="toggleBtn">Toggle Animation</button>
+    
+    <div class="preference-control">
+      <label for="colorPicker">Box Color:</label>
+      <input type="color" id="colorPicker" value="#3498db">
+    </div>
+    
+    <div class="preference-control">
+      <label for="speedSlider">Animation Speed:</label>
+      <input type="range" id="speedSlider" min="0.1" max="2" step="0.1" value="0.5">
+      <span id="speedValue">0.5s</span>
+    </div>
+    
+    <button id="saveBtn">Save Preferences</button>
+    <button id="resetBtn">Reset Preferences</button>
+  </div>
+
+  <script>
+    // JavaScript functionality
+    
+    // DOM elements
+    const animationBox = document.getElementById('animationBox');
+    const toggleBtn = document.getElementById('toggleBtn');
+    const colorPicker = document.getElementById('colorPicker');
+    const speedSlider = document.getElementById('speedSlider');
+    const speedValue = document.getElementById('speedValue');
+    const saveBtn = document.getElementById('saveBtn');
+    const resetBtn = document.getElementById('resetBtn');
+
+    // Store user preferences
+    function savePreferences() {
+      const preferences = {
+        color: colorPicker.value,
+        animationSpeed: speedSlider.value,
+        isAnimating: animationBox.classList.contains('bounce-animation')
+      };
+      
+      localStorage.setItem('userPreferences', JSON.stringify(preferences));
+      alert('Preferences saved! They will be remembered next time.');
+    }
+
+    // Load user preferences
+    function loadPreferences() {
+      const savedPreferences = localStorage.getItem('userPreferences');
+      if (savedPreferences) {
+        const preferences = JSON.parse(savedPreferences);
+        
+        // Apply preferences
+        colorPicker.value = preferences.color;
+        animationBox.style.backgroundColor = preferences.color;
+        
+        speedSlider.value = preferences.animationSpeed;
+        speedValue.textContent = `${preferences.animationSpeed}s`;
+        
+        if (preferences.isAnimating) {
+          animationBox.classList.add('bounce-animation');
+          updateAnimationSpeed(preferences.animationSpeed);
+        }
+        
+        return preferences;
+      }
+      return null;
+    }
+
+    // Update animation speed
+    function updateAnimationSpeed(speed) {
+      animationBox.style.animationDuration = `${speed}s`;
+    }
+
+    // Reset to default preferences
+    function resetPreferences() {
+      localStorage.removeItem('userPreferences');
+      colorPicker.value = '#3498db';
+      speedSlider.value = 0.5;
+      speedValue.textContent = '0.5s';
+      animationBox.style.backgroundColor = '#3498db';
+      animationBox.classList.remove('bounce-animation');
+      animationBox.style.animationDuration = '0.5s';
+      alert('Preferences reset to defaults!');
+    }
+
+    // Toggle animation on/off
+    function toggleAnimation() {
+      animationBox.classList.toggle('bounce-animation');
+      
+      // Update animation speed when toggling
+      if (animationBox.classList.contains('bounce-animation')) {
+        updateAnimationSpeed(speedSlider.value);
+      }
+    }
+
+    // Initialize page
+    function init() {
+      // Load saved preferences
+      loadPreferences();
+      
+      // Set up event listeners
+      toggleBtn.addEventListener('click', toggleAnimation);
+      
+      colorPicker.addEventListener('input', function() {
+        animationBox.style.backgroundColor = this.value;
+      });
+      
+      speedSlider.addEventListener('input', function() {
+        const speed = this.value;
+        speedValue.textContent = `${speed}s`;
+        if (animationBox.classList.contains('bounce-animation')) {
+          updateAnimationSpeed(speed);
+        }
+      });
+      
+      saveBtn.addEventListener('click', savePreferences);
+      resetBtn.addEventListener('click', resetPreferences);
+      
+      // Add click effect
+      animationBox.addEventListener('click', function() {
+        this.style.transform = 'scale(0.9)';
+        setTimeout(() => {
+          this.style.transform = 'scale(1)';
+        }, 300);
+      });
+    }
+
+    // Run initialization when page loads
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
